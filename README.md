@@ -1,1 +1,4 @@
 # Fantasy-League-Recommender
+![Picture](image.png)
+### Overview
+This project contains the development of a fictional basketball API that generates player information and statistics. The API is designed to be called through an ETL (Extract, Transform, Load) process, which joins the data and saves it in either Parquet or CSV format. This processed data is then fed into a hybrid recommender system that helps users select players for their fantasy basketball league teams. The league game is based on a Head-to-Head points approach, where players' performance statistics are used to make informed decisions for team selections.
