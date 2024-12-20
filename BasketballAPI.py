@@ -91,12 +91,14 @@ class BasketballAPI:
                     self.player_teams[player][current_season] = previous_team
 
     def _generate_stats(self, player: str, season: str) -> Dict[str, Any]:
-        """Generate statistics based on player archetype"""
+        """Generate statistics based on player archetype, with random missing data"""
         archetype = self.player_data[player]['archetype']
         base_stats = {
             'games_played': random.randint(20, 82),
             'minutes': round(random.uniform(12, 38), 1)
         }
+        
+        stats = {}
         
         if archetype == 'elite_scorer':
             stats = {
@@ -168,8 +170,13 @@ class BasketballAPI:
                     'fg3_pct': round(random.uniform(0.250, 0.330), 3),
                     'ft_pct': round(random.uniform(0.600, 0.750), 3)
                 }
+
+        # Randomly introduce missing data
+        missing_percentage = 0.05  # 5% chance for stats to be missing
+        stats_with_missing = {key: (value if random.random() > missing_percentage else None) 
+                             for key, value in stats.items()}
         
-        return {**base_stats, **stats}
+        return {**base_stats, **stats_with_missing}
 
     def get_players(self) -> List[Dict[str, Any]]:
         """Method to get player data"""
