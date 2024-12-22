@@ -36,22 +36,22 @@ class FantasyReccomenderBasic:
             pd.DataFrame: A DataFrame sorted by composite scores in descending order,
                           with only the best score for each player.
         """
-        # 1. Drop rows with NaN values in the key metrics
+        # Dropping rows with NaN values in the key metrics
         data = self.data.dropna(subset=self.key_metrics)
 
-        # 2. Normalize Metrics
+        #  Normalizing Metrics
         scaler = MinMaxScaler()
         normalized_stats = pd.DataFrame(
             scaler.fit_transform(data[self.key_metrics]),
             columns=self.key_metrics
         )
 
-        # 3. Calculate Composite Score
+        # Calculating Composite Score
         composite_scores = pd.Series(0, index=normalized_stats.index)
         for metric, weight in self.weights.items():
             composite_scores += normalized_stats[metric] * weight
 
-        # 4. Create Rankings DataFrame
+        # Rankings DataFrame
         initial_rankings = pd.DataFrame({
             'player_id': data['player_id'],
             'player_name': data['player_name'],
@@ -60,17 +60,14 @@ class FantasyReccomenderBasic:
             'traded': data['traded']
         })
 
-        # 5. Keep Only the Best Composite Score for Each Player
-        # Calculate the maximum composite score for each player
+        
         initial_rankings['max_composite_score'] = initial_rankings.groupby('player_id')['composite_score'].transform('max')
 
-        # Filter rows where the composite score equals the maximum composite score for each player
         best_scores = initial_rankings[initial_rankings['composite_score'] == initial_rankings['max_composite_score']]
 
-        # Drop the helper column for max_composite_score
         best_scores = best_scores.drop(columns=['max_composite_score'])
 
-        # 6. Sort by Composite Score in Descending Order
+        # Sorting by Composite Score in Descending Order
         rankings = best_scores.sort_values('composite_score', ascending=False).reset_index(drop=True)
 
         return rankings.head(top_n)
