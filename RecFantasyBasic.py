@@ -73,7 +73,6 @@ class FantasyRecommenderBasic:
         rankings_df = pd.DataFrame({
             'player_id': self.data['player_id'],
             'player_name': self.data['player_name'],
-            'season': self.data['season'],
             'team': self.data['team'],
             'composite_score': composite_scores,
             'traded': self.data['traded']
