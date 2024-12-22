@@ -99,6 +99,7 @@
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 
+
 class FantasyRecommender:
     """
     Improved FantasyRecommender Class with Proper Handling of Duplicate Players
