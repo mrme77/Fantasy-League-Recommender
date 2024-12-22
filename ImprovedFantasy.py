@@ -62,15 +62,15 @@ class FantasyRecommender:
         """
         try:
             if isinstance(player_input, (list, tuple, set)):
-                # Handle list of players
+                # Ensure the input is iterable and update the selected players set
                 self.selected_players.update(player_input)
             else:
-                # Handle single player
+                # Handle single player ID
                 self.selected_players.add(player_input)
         except Exception as e:
             print(f"Error selecting player(s): {e}")
             raise
-            
+
     def get_recommendations(self, rankings_df, n_recommendations=5, traded=None):
         """
         Get recommendations excluding all selected players
@@ -95,4 +95,3 @@ class FantasyRecommender:
     def get_selected_players(self):
         """Return list of selected player IDs"""
         return list(self.selected_players)
-
