@@ -1,13 +1,13 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
-class FantasyRecommenderBasic:
+class FantasyReccomenderBasic:
     def __init__(self, data):
         """
-        Initializes the FantasyRecommenderBasic class.
-
+        Initializes the FantasyReccomenderBasic with player statistics data.
+        
         Args:
-            data (pd.DataFrame): A DataFrame containing player statistics.
+            data (pd.DataFrame): A DataFrame containing players' statistics.
         """
         self.data = data
         self.key_metrics = [
@@ -25,63 +25,52 @@ class FantasyRecommenderBasic:
             'ft_pct': 0.05
         }
 
-    def _normalize_metrics(self):
-        """
-        Normalizes the key metrics using MinMax scaling.
-
-        Returns:
-            pd.DataFrame: Normalized player statistics.
-        """
-        scaler = MinMaxScaler()
-        return pd.DataFrame(
-            scaler.fit_transform(self.data[self.key_metrics]),
-            columns=self.key_metrics
-        )
-
-    def _calculate_composite_scores(self, normalized_stats):
-        """
-        Calculates composite scores for each player based on normalized metrics and weights.
-
-        Args:
-            normalized_stats (pd.DataFrame): Normalized statistics for each player.
-
-        Returns:
-            pd.Series: Composite scores for each player.
-        """
-        composite_scores = pd.Series(0, index=normalized_stats.index)
-        for metric, weight in self.weights.items():
-            composite_scores += normalized_stats[metric] * weight
-        return composite_scores
-
     def create_rank_based_recommendations(self, top_n=5):
         """
         Creates rank-based recommendations using key basketball metrics.
 
         Args:
-            top_n (int): The number of top recommendations to return.
-
+            top_n (int): The number of top players to recommend based on composite scores.
+        
         Returns:
-            pd.DataFrame: A DataFrame sorted by composite scores in descending order.
+            pd.DataFrame: A DataFrame sorted by composite scores in descending order,
+                          with only the best score for each player.
         """
-        # Normalize metrics
-        normalized_stats = self._normalize_metrics()
+        # 1. Drop rows with NaN values in the key metrics
+        data = self.data.dropna(subset=self.key_metrics)
 
-        # Calculate composite scores
-        composite_scores = self._calculate_composite_scores(normalized_stats)
+        # 2. Normalize Metrics
+        scaler = MinMaxScaler()
+        normalized_stats = pd.DataFrame(
+            scaler.fit_transform(data[self.key_metrics]),
+            columns=self.key_metrics
+        )
 
-        # Create rankings DataFrame
-        rankings_df = pd.DataFrame({
-            'player_id': self.data['player_id'],
-            'player_name': self.data['player_name'],
-            'team': self.data['team'],
+        # 3. Calculate Composite Score
+        composite_scores = pd.Series(0, index=normalized_stats.index)
+        for metric, weight in self.weights.items():
+            composite_scores += normalized_stats[metric] * weight
+
+        # 4. Create Rankings DataFrame
+        initial_rankings = pd.DataFrame({
+            'player_id': data['player_id'],
+            'player_name': data['player_name'],
+            'team': data['team'],
             'composite_score': composite_scores,
-            'traded': self.data['traded']
+            'traded': data['traded']
         })
 
-        # Keep only the best composite score for each player
-        best_scores = rankings_df.loc[rankings_df.groupby('player_id')['composite_score'].idxmax()]
+        # 5. Keep Only the Best Composite Score for Each Player
+        # Calculate the maximum composite score for each player
+        initial_rankings['max_composite_score'] = initial_rankings.groupby('player_id')['composite_score'].transform('max')
 
-        # Sort by composite score in descending order
+        # Filter rows where the composite score equals the maximum composite score for each player
+        best_scores = initial_rankings[initial_rankings['composite_score'] == initial_rankings['max_composite_score']]
+
+        # Drop the helper column for max_composite_score
+        best_scores = best_scores.drop(columns=['max_composite_score'])
+
+        # 6. Sort by Composite Score in Descending Order
         rankings = best_scores.sort_values('composite_score', ascending=False).reset_index(drop=True)
 
         return rankings.head(top_n)
