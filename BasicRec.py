@@ -18,8 +18,8 @@ class FantasyReccomenderBasic:
             'points': 0.25,
             'rebounds': 0.15,
             'assists': 0.15,
-            'steals': 0.12,
-            'blocks': 0.12,
+            'steals': 0.125,
+            'blocks': 0.125,
             'fg_pct': 0.10,
             'fg3_pct': 0.05,
             'ft_pct': 0.05
