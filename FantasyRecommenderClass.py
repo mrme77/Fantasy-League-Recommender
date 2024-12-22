@@ -91,11 +91,13 @@ class FantasyRecommender:
             'points': 0.25,
             'rebounds': 0.15,
             'assists': 0.15,
-            'steals': 0.125,
-            'blocks': 0.125,
+            'steals': 0.12,
+            'blocks': 0.12,
             'fg_pct': 0.10,
             'fg3_pct': 0.05,
-            'ft_pct': 0.05
+            'ft_pct': 0.05,
+            'traded': 0.01
+            
         }
         
         # 4. Calculate Composite Score
