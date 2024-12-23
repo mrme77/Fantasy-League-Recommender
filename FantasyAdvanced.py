@@ -5,7 +5,7 @@ class FantasyRecommenderAdvanced:
     def __init__(self, data):
         """
         Initializes the FantasyRecommenderAdvanced with player statistics data.
-        
+
         Args:
             data (pd.DataFrame): A DataFrame containing players' statistics.
         """
@@ -25,43 +25,35 @@ class FantasyRecommenderAdvanced:
             'ft_pct': 0.05
         }
 
-    def create_rank_based_recommendations(self, top_n=5, exclude_players=None):
+    def create_rank_based_recommendations(self, unavailable_players=None, top_n=5):
         """
-        Creates rank-based recommendations using key basketball metrics, 
-        with optional exclusion of specific players provided by the user.
+        Creates rank-based recommendations using key basketball metrics, excluding unavailable players.
 
         Args:
-            top_n (int): The number of top players to recommend.
-            exclude_players (list, optional): List of player IDs to exclude from recommendations.
-                                              If None, no players are excluded.
+            unavailable_players (list): List of player IDs to exclude from recommendations.
+            top_n (int): The number of top players to recommend based on composite scores.
 
         Returns:
             pd.DataFrame: A DataFrame sorted by composite scores in descending order,
-                          filtered to exclude specified players.
+                          excluding unavailable players.
         """
-        # Dropping rows with NaN values in key metrics
+        # Dropping rows with NaN values in the key metrics
         data = self.data.dropna(subset=self.key_metrics)
 
-        # Exclude players if a list is provided
-        if exclude_players:
-            data = self.data.dropna(subset=self.key_metrics)
-            data = data[~data['player_id'].isin(exclude_players)]
-            print(f"Excluding players with IDs: {exclude_players}")
-
-        # Normalize metrics
+        # Normalizing Metrics
         scaler = MinMaxScaler()
         normalized_stats = pd.DataFrame(
             scaler.fit_transform(data[self.key_metrics]),
             columns=self.key_metrics
         )
 
-        # Calculate composite scores
+        # Calculating Composite Score
         composite_scores = pd.Series(0, index=normalized_stats.index)
         for metric, weight in self.weights.items():
             composite_scores += normalized_stats[metric] * weight
 
-        # Create rankings DataFrame
-        rankings = pd.DataFrame({
+        # Rankings DataFrame
+        initial_rankings = pd.DataFrame({
             'player_id': data['player_id'],
             'player_name': data['player_name'],
             'team': data['team'],
@@ -69,7 +61,16 @@ class FantasyRecommenderAdvanced:
             'traded': data['traded']
         })
 
-        # Sort by composite score in descending order
-        rankings = rankings.sort_values('composite_score', ascending=False).reset_index(drop=True)
+        # Keeping only the best score for each player
+        initial_rankings['max_composite_score'] = initial_rankings.groupby('player_id')['composite_score'].transform('max')
+        best_scores = initial_rankings[initial_rankings['composite_score'] == initial_rankings['max_composite_score']]
+        best_scores = best_scores.drop(columns=['max_composite_score'])
+
+        # Sorting by Composite Score in Descending Order
+        rankings = best_scores.sort_values('composite_score', ascending=False).reset_index(drop=True)
+
+        # Exclude unavailable players if provided
+        if unavailable_players:
+            rankings = rankings[~rankings['player_id'].isin(unavailable_players)]
 
         return rankings.head(top_n)
