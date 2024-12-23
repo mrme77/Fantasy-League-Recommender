@@ -105,37 +105,40 @@ class FantasyRecomenderAdvanced:
 
     def create_rank_based_recommendations(self, top_n=5, exclude_players=None):
         """
-        Creates rank-based recommendations using key basketball metrics.
+    Creates rank-based recommendations using key basketball metrics, 
+    with optional exclusion of specific players provided by the user.
 
-        Args:
-            top_n (int): The number of top players to recommend based on composite scores.
-            exclude_players (list): A list of player_ids to exclude from the recommendations.
-        
-        Returns:
-            pd.DataFrame: A DataFrame sorted by composite scores in descending order,
-                          with only the best score for each player.
-        """
-        # Dropping rows with NaN values in the key metrics
+    Args:
+        top_n (int): The number of top players to recommend.
+        exclude_players (list, optional): List of player IDs to exclude from recommendations.
+                                          If None, no players are excluded.
+
+    Returns:
+        pd.DataFrame: A DataFrame sorted by composite scores in descending order,
+                      filtered to exclude specified players.
+    """
+         # Dropping rows with NaN values in key metrics
         data = self.data.dropna(subset=self.key_metrics)
 
-        # Filter out excluded players, if provided
+        # Exclude players if a list is provided
         if exclude_players:
             data = data[~data['player_id'].isin(exclude_players)]
+            print(f"Excluding players with IDs: {exclude_players}")
 
-        # Normalizing Metrics
+        # Normalize metrics
         scaler = MinMaxScaler()
         normalized_stats = pd.DataFrame(
             scaler.fit_transform(data[self.key_metrics]),
             columns=self.key_metrics
         )
 
-        # Calculating Composite Score
+        # Calculate composite scores
         composite_scores = pd.Series(0, index=normalized_stats.index)
         for metric, weight in self.weights.items():
             composite_scores += normalized_stats[metric] * weight
 
-        # Rankings DataFrame
-        initial_rankings = pd.DataFrame({
+        # Create rankings DataFrame
+        rankings = pd.DataFrame({
             'player_id': data['player_id'],
             'player_name': data['player_name'],
             'team': data['team'],
@@ -143,14 +146,7 @@ class FantasyRecomenderAdvanced:
             'traded': data['traded']
         })
 
-        # Identifying the maximum composite score for each player
-        initial_rankings['max_composite_score'] = initial_rankings.groupby('player_id')['composite_score'].transform('max')
-
-        # Selecting only the best scores for each player
-        best_scores = initial_rankings[initial_rankings['composite_score'] == initial_rankings['max_composite_score']]
-        best_scores = best_scores.drop(columns=['max_composite_score'])
-
-        # Sorting by Composite Score in Descending Order
-        rankings = best_scores.sort_values('composite_score', ascending=False).reset_index(drop=True)
+        # Sort by composite score in descending order
+        rankings = rankings.sort_values('composite_score', ascending=False).reset_index(drop=True)
 
         return rankings.head(top_n)
