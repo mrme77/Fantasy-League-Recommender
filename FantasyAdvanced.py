@@ -58,7 +58,8 @@ class FantasyRecommenderAdvanced:
             'player_name': data['player_name'],
             'team': data['team'],
             'composite_score': composite_scores,
-            'traded': data['traded']
+            'traded': data['traded'],
+            'archetype':data['archetype']
         })
 
         # Keeping only the best score for each player
