@@ -11,12 +11,12 @@ class BasketballAPI:
         self.elite_percentage = 0.05
         self.movement_probability = 0.15
         self.faker = Faker()
-        Faker.seed(12345)  # For reproducibility
+        Faker.seed(12345)  
         
-        # Define seasons and teams
+        # Seasons and teams
         self.seasons = ['2019-20', '2020-21', '2021-22', '2022-23', '2023-24']
         self.teams = ['SkyBirds', 'VBADragons', 'SparkiFY', 'KeyBoardWarriors', 'UnitedWeCode', 'HtmlERS', 'LutammS', 'BIsupremE']
-        # Generate players and their attributes
+        # Players and their attributes
         self._initialize_players()
         self._assign_teams_by_season()
         print("Initialization complete!")
@@ -48,7 +48,7 @@ class BasketballAPI:
         self.elite_playmakers = set(random.sample(list(remaining_players), num_elite))
         self.regular_players = remaining_players - self.elite_playmakers
         
-        # Create player dictionary with attributes
+        # Player dictionary with attributes
         self.player_data = {}
         for idx, player in enumerate(self.players):
             archetype = 'regular'
@@ -70,7 +70,7 @@ class BasketballAPI:
         print("Assigning teams for each season...")
         self.player_teams = {player: {} for player in self.players}
         
-        # Initial team assignment
+        # Team assignment
         for player in self.players:
             self.player_teams[player][self.seasons[0]] = random.choice(self.teams)
         
@@ -181,7 +181,7 @@ class BasketballAPI:
     def get_players(self) -> List[Dict[str, Any]]:
         """Method to get player data"""
         print("\nLoading player data...")
-        time.sleep(5)  # Simulate 5-second delay for player data
+        time.sleep(5)  
         
         players = [
             {
@@ -202,7 +202,7 @@ class BasketballAPI:
         print("\nBeginning statistics data load...")
         for season in self.seasons:
             print(f"\nLoading data for season {season}...")
-            time.sleep(30)  # Simulate 30-second delay for each season
+            time.sleep(15)  
             
             season_stats = []
             for player in self.players:
