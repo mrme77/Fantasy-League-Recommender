@@ -1,5 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+pd.set_option('display.max_colwidth', 800)
 
 class FantasyReccomenderBasic:
     def __init__(self, data):
@@ -57,8 +58,9 @@ class FantasyReccomenderBasic:
             'player_name': data['player_name'],
             'team': data['team'],
             'composite_score': composite_scores,
-            'traded': data['traded'],
-            'archetype':data['archetype']
+            'archetype':data['archetype'],
+            'traded': data['traded']
+            
         })
 
         

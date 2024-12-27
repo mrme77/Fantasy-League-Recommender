@@ -173,3 +173,4 @@ class FantasyRecommenderRF:
             Kmetric = max(0, Kmetric)
 
         return Kmetric * 100
+
