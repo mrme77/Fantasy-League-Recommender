@@ -5,6 +5,22 @@ from typing import List, Dict, Any
 
 class BasketballAPI:
     def __init__(self, players_per_season=390):
+        """
+A basketball analytics API that simulates and generates player and team data across multiple seasons.
+
+This API creates a synthetic basketball dataset with the following key features:
+- Generates 390 players per season across 5 seasons (2019-2024)
+- Assigns players to 8 teams with detailed team information (city, state, creation date)
+- Categorizes players into archetypes (elite_scorer, elite_defender, elite_playmaker, regular)
+- Simulates realistic player statistics based on their archetype
+- Tracks player movement between teams with a 15% movement probability
+- Includes performance metrics like points, rebounds, assists with appropriate ranges
+- Generates team details including unique IDs, locations, and franchise history
+
+Returns:
+    Various methods to access player stats, team information, and season data
+    with built-in analysis capabilities for tracking player movements and performance.
+"""
         print("Initializing Basketball API...")
         # Initialize basic parameters
         self.players_per_season = players_per_season
