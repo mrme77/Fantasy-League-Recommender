@@ -27,22 +27,55 @@ class FantasyRecommenderRF:
         self.unavailable_players = set()
         self._prepare_data()
         
+    # def _prepare_data(self) -> None:
+    #     """Prepare data for Random Forest model"""
+    #     # Drop NaN values and scale features
+    #     self.processed_data = self.data.dropna(subset=self.key_metrics).copy()
+    #     self.scaled_features = self.scaler.fit_transform(
+    #         self.processed_data[self.key_metrics]
+    #     )
+        
+    #     # Create player archetypes using statistics
+    #     self.rf_model.fit(
+    #         self.scaled_features,
+    #         self.processed_data['archetype']
+    #     )
+        
+    #     # Set df as processed_data for easier reference
+    #     self.df = self.processed_data
     def _prepare_data(self) -> None:
         """Prepare data for Random Forest model"""
-        # Drop NaN values and scale features
-        self.processed_data = self.data.dropna(subset=self.key_metrics).copy()
-        self.scaled_features = self.scaler.fit_transform(
-            self.processed_data[self.key_metrics]
-        )
-        
+        # Cleaning dataset by removing rows with NaN values in the key metrics
+        new_df = self.data.dropna(subset=self.key_metrics)
+
+        # Aggregating player stats by averaging across seasons
+        aggregated_df = (
+        new_df.groupby('player_id')[['points', 'rebounds', 'assists', 'steals', 
+                                     'blocks', 'fg_pct', 'fg3_pct', 'ft_pct']]
+        .mean()
+        .reset_index()
+    )
+
+        # Add other non-statistical columns that should remain constant for each player (assuming the same for all seasons)
+        aggregated_df = aggregated_df.merge(
+        new_df[['player_id', 'player_name', 'team', 'archetype']].drop_duplicates(),
+        on='player_id',
+        how='left'
+    )
+
+        # Ensure there are no NaN values left
+        aggregated_df = aggregated_df.dropna(subset=self.key_metrics)
+
+        # Scale features using MinMaxScaler
+        self.processed_data = aggregated_df.copy()
+        self.scaled_features = self.scaler.fit_transform(self.processed_data[self.key_metrics])
+
         # Create player archetypes using statistics
-        self.rf_model.fit(
-            self.scaled_features,
-            self.processed_data['archetype']
-        )
-        
+        self.rf_model.fit(self.scaled_features, self.processed_data['archetype'])
+
         # Set df as processed_data for easier reference
         self.df = self.processed_data
+
         
     def get_similarity_scores(self, player_id: int) -> pd.DataFrame:
         """
