@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fantasy Player Recommender</title>
+    <meta name="author" content="Pasquale `The Mast` Salomone">
+    <meta name="description" content="A fantasy player recommender system using Random Forest algorithm.">
+    <meta name="keywords" content="Fantasy Leagues, Player, Recommender, Random Forest, Machine Learning">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        
+        select {
+            min-width: 200px;
+            padding: 5px;
+        }
+        
+        #unavailable_players {
+            height: 150px;
+        }
+        
+        .flash-messages {
+            color: red;
+            margin: 10px 0;
+        }
+        
+        .precision {
+            font-weight: bold;
+            color: #2c5282;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fantasy Player Recommender</h1>
+    <!-- Display author and model information -->
+    <p><strong>Author:</strong> Pasquale `The Mast` Salomone</p>
+    <p><strong>Model Used:</strong> Random Forest Algorithm</p>
+    <p><strong>Description:</strong>A fantasy player recommender system using Random Forest algorithm</p>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <div>
+            <label for="player_id"><strong>Select Player ID:</strong></label><br>
+            <select name="player_id" id="player_id" required>
+                <option value="">-- Select a player --</option>
+                {% for pid in player_ids %}
+                <option value="{{ pid }}">{{ pid }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+
+        <div>
+            <label for="unavailable_players"><strong>Unavailable Players (Hold Ctrl/Cmd to select multiple):</strong></label><br>
+            <select name="unavailable_players" id="unavailable_players" multiple>
+                {% for pid in player_ids %}
+                <option value="{{ pid }}" {% if pid in unavailable_players %}selected{% endif %}>{{ pid }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+
+        <button type="submit" style="padding: 10px 20px;">Get Recommendations</button>
+    </form>
+
+    {% if initial_recommendations is not none and not initial_recommendations.empty %}
+    <h2>Initial Recommendations</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Player ID</th>
+                <th>Player Name</th>
+                <th>Team</th>
+                <th>Similarity Score</th>
+                <th>Archetype</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in initial_recommendations.itertuples() %}
+            <tr>
+                <td>{{ row.player_id }}</td>
+                <td>{{ row.player_name }}</td>
+                <td>{{ row.team }}</td>
+                <td>{{ "%.2f"|format(row.similarity_score) }}</td>
+                <td>{{ row.archetype }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="precision">Precision at K: {{ "%.2f"|format(precision_initial) }}%</p>
+    {% endif %}
+
+    {% if updated_recommendations is not none and not updated_recommendations.empty %}
+    <h2>Updated Recommendations (Excluding Unavailable Players)</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Player ID</th>
+                <th>Player Name</th>
+                <th>Team</th>
+                <th>Similarity Score</th>
+                <th>Archetype</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in updated_recommendations.itertuples() %}
+            <tr>
+                <td>{{ row.player_id }}</td>
+                <td>{{ row.player_name }}</td>
+                <td>{{ row.team }}</td>
+                <td>{{ "%.2f"|format(row.similarity_score) }}</td>
+                <td>{{ row.archetype }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p class="precision">Precision at K: {{ "%.2f"|format(precision_updated) }}%</p>
+    {% endif %}
+
+    {% if unavailable_message %}
+    <p><strong>{{ unavailable_message }}</strong></p>
+    {% endif %}
+
+    <!-- Exit button with icon -->
+    <button onclick="exitApplication()" class="exit-button">
+        <img src="{{ url_for('static', filename='images/button_icon.png') }}" alt="Exit" width="20" height="20">
+        Exit Application
+    </button>
+
+    <script>
+        function exitApplication() {
+            if (confirm('Are you sure you want to exit the application?')) {
+                fetch('/shutdown', { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = 'about:blank';
+                            window.close();
+                            document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Application has been shut down. You can close this window.</h1>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to shutdown the application');
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

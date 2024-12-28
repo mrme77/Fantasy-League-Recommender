@@ -182,6 +182,11 @@ class FantasyRecommenderRF:
     def update_unavailable_players(self, player_ids: List[int]) -> None:
         """Update set of unavailable players"""
         self.unavailable_players.update(player_ids)
+    #--------
+    def get_player_ids(self):
+        """Get all unique player IDs from the dataset."""
+        return self.df['player_id'].unique().tolist()
+    #-----
     
     def precisionK(self, player_id: int, recommendations: pd.DataFrame, top_n: int = 5) -> float:
         """
