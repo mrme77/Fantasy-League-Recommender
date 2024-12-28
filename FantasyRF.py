@@ -213,29 +213,56 @@ class FantasyRecommenderRF:
         # Prepare data using the training set
         self.prepare_data()
 
-    def manual_split_data(self):
-        """Manually split data ensuring all player IDs are in both sets"""
+    # def manual_split_data(self):
+    #     """Manually split data ensuring all player IDs are in both sets"""
+    #     unique_players = self.data['player_id'].unique()
+    #     train_idx = []
+    #     test_idx = []
+
+    #     for player_id in unique_players:
+    #         player_data = self.data[self.data['player_id'] == player_id]
+    #         split_point = int(len(player_data) * 0.8)  # 80% for training, 20% for testing
+    #         player_train_idx = player_data.index[:split_point]
+    #         player_test_idx = player_data.index[split_point:]
+
+    #         train_idx.extend(player_train_idx)
+    #         test_idx.extend(player_test_idx)
+
+    #     self.train_data = self.data.loc[train_idx]
+    #     self.test_data = self.data.loc[test_idx]
+    #     # Extract unique player IDs from the test data
+    #     unique_player_ids_in_test = self.test_data['player_id'].unique()
+    #     #print("Unique player IDs in test data:", unique_player_ids_in_test)
+
+    #     return unique_player_ids_in_test
+    
+    def manual_split_data(self, test_size=0.2):
+        """
+        Manually split data ensuring all player IDs are in both sets.
+        
+        Args:
+            test_size (float): Proportion of the dataset to include in the test split.
+        """
         unique_players = self.data['player_id'].unique()
-        train_idx = []
-        test_idx = []
+        train_idx, test_idx = [], []
 
         for player_id in unique_players:
             player_data = self.data[self.data['player_id'] == player_id]
-            split_point = int(len(player_data) * 0.8)  # 80% for training, 20% for testing
-            player_train_idx = player_data.index[:split_point]
-            player_test_idx = player_data.index[split_point:]
-
-            train_idx.extend(player_train_idx)
-            test_idx.extend(player_test_idx)
+            # Ensure there's enough data to split
+            if len(player_data) > 1:
+                split_point = int(len(player_data) * (1 - test_size))
+                train_idx.extend(player_data.index[:split_point])
+                test_idx.extend(player_data.index[split_point:])
+            else:
+                # If only one data point, assign to training set
+                train_idx.extend(player_data.index)
 
         self.train_data = self.data.loc[train_idx]
         self.test_data = self.data.loc[test_idx]
-        # Extract unique player IDs from the test data
-        unique_player_ids_in_test = self.test_data['player_id'].unique()
-        #print("Unique player IDs in test data:", unique_player_ids_in_test)
 
+        # Optionally, return unique player IDs in the test set for verification
+        unique_player_ids_in_test = self.test_data['player_id'].unique()
         return unique_player_ids_in_test
-    
     # def _prepare_data(self):
     #     """Prepare data for Random Forest model"""
     #     # Cleaning dataset by removing rows with NaN values in the key metrics
