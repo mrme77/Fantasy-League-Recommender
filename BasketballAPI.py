@@ -22,14 +22,14 @@ Returns:
     with built-in analysis capabilities for tracking player movements and performance.
 """
         print("Initializing Basketball API...")
-        # Initialize basic parameters
+        # Basic parameters
         self.players_per_season = players_per_season
         self.elite_percentage = 0.05
         self.movement_probability = 0.15
         self.faker = Faker()
         Faker.seed(12345)  
         
-        # Seasons and teams
+        
         self.seasons = ['2019-20', '2020-21', '2021-22', '2022-23', '2023-24']
         self.teams = ['SkyBirds', 'VBADragons', 'SparkiFY', 'KeyBoardWarriors', 'UnitedWeCode', 'HtmlERS', 'LutammS', 'BIsupremE']
         # Players and their attributes
@@ -49,11 +49,11 @@ Returns:
                 unique_names.add(name)
                 self.players.append(name)
         
-        # Calculate number of elite players
+        # Generate number of elite players
         num_elite = int(self.players_per_season * self.elite_percentage)
         
         print(f"Assigning player archetypes ({num_elite} players per elite category)...")
-        # Randomly select elite players
+        # Randomly selecting elite players
         all_players = set(self.players)
         self.elite_scorers = set(random.sample(list(all_players), num_elite))
         remaining_players = all_players - self.elite_scorers
@@ -90,7 +90,7 @@ Returns:
         for player in self.players:
             self.player_teams[player][self.seasons[0]] = random.choice(self.teams)
         
-        # Assign teams for subsequent seasons
+        # Subsequent seasons assignments
         for i in range(1, len(self.seasons)):
             current_season = self.seasons[i]
             previous_season = self.seasons[i-1]
@@ -99,11 +99,11 @@ Returns:
                 previous_team = self.player_teams[player][previous_season]
                 
                 if self.player_data[player]['movement_prone'] and random.random() < 0.3:
-                    # 30% chance to change teams for movement-prone players
+                    
                     new_team = random.choice([t for t in self.teams if t != previous_team])
                     self.player_teams[player][current_season] = new_team
                 else:
-                    # Stay with the same team
+                    # player team consistency
                     self.player_teams[player][current_season] = previous_team
 
     def _generate_stats(self, player: str, season: str) -> Dict[str, Any]:
@@ -187,8 +187,8 @@ Returns:
                     'ft_pct': round(random.uniform(0.600, 0.750), 3)
                 }
 
-        # Randomly introduce missing data
-        missing_percentage = 0.05  # 5% chance for stats to be missing
+        # Randomly introducing missing values
+        missing_percentage = 0.05  
         stats_with_missing = {key: (value if random.random() > missing_percentage else None) 
                              for key, value in stats.items()}
         
@@ -238,7 +238,7 @@ Returns:
 
 
 if __name__ == "__main__":
-    # Test the API with timing information
+    # Simulating API with timing information
     start_time = time.time()
     
     print("Starting data generation process...")

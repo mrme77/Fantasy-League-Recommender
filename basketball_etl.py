@@ -20,12 +20,12 @@ def etl_basketball_data(players: List[Dict[str, Any]], stats: List[Dict[str, Any
     print("\nStarting ETL process...")
     start_time = time.time()
     
-    # Convert to DataFrames
+    # Creating DataFrames
     print("Converting data to DataFrames...")
     df_players = pd.DataFrame(players)
     df_stats = pd.DataFrame(stats)
     
-    # Merge DataFrames
+    
     print("Joining player and stats data...")
     df_combined = df_stats.merge(
         df_players,
@@ -33,7 +33,7 @@ def etl_basketball_data(players: List[Dict[str, Any]], stats: List[Dict[str, Any
         how='left'
     )
     
-    # Reorder columns for better readability
+    # Reordering columns for better readability
     columns_order = [
         'player_id', 'player_name', 'archetype', 'season', 'team',
         'games_played', 'minutes', 'points', 'rebounds', 'assists',
@@ -41,7 +41,7 @@ def etl_basketball_data(players: List[Dict[str, Any]], stats: List[Dict[str, Any
     ]
     df_combined = df_combined[columns_order]
     
-    # Save to CSV
+    
     print(f"Saving data to {output_file}...")
     df_combined.to_csv(output_file, index=False)
     
@@ -50,25 +50,3 @@ def etl_basketball_data(players: List[Dict[str, Any]], stats: List[Dict[str, Any
     print(f"Total records: {len(df_combined)}")
     
     return df_combined
-
-# Example usage:
-if __name__ == "__main__":
-    # Initialize API and get data
-    api = BasketballAPI()
-    players = api.get_players()
-    stats = api.get_stats()
-    
-    # Run ETL process
-    df_combined = etl_basketball_data(players, stats)
-    
-    # Display sample of the data
-    print("\nSample of combined data:")
-    print(df_combined.head())
-    
-    # Display basic statistics
-    print("\nData summary:")
-    print(f"Total unique players: {df_combined['player_id'].nunique()}")
-    print(f"Seasons covered: {df_combined['season'].nunique()}")
-    print(f"Total teams: {df_combined['team'].nunique()}")
-    print("\nArchetype distribution:")
-    print(df_combined['archetype'].value_counts())

@@ -72,7 +72,7 @@ def index():
         flash("Error: Model not loaded properly", "error")
         return render_template('error.html', error="Model not loaded properly")
 
-    # Initialize variables
+    
     initial_recommendations = None
     updated_recommendations = None
     precision_initial = None
@@ -87,23 +87,23 @@ def index():
 
         if request.method == 'POST':
             try:
-                # Get and validate the selected player_id
+                # Validate the selected player_id
                 player_id = int(request.form.get('player_id'))
                 logger.info(f"Processing request for player ID: {player_id}")
                 
-                # Get initial recommendations
+                # Initial recommendations
                 initial_recommendations = fantasy_rec.get_recommendations(player_id, top_n=5)
                 precision_initial = fantasy_rec.precisionK(player_id, initial_recommendations)
                 logger.debug(f"Initial recommendations generated with precision: {precision_initial}")
 
-                # Process unavailable players
+                # Unavailable players
                 unavailable_players = request.form.getlist('unavailable_players')
                 if unavailable_players:
                     unavailable_players = [int(pid) for pid in unavailable_players]
                     fantasy_rec.update_unavailable_players(unavailable_players)
                     logger.info(f"Updated unavailable players: {unavailable_players}")
                     
-                    # Get updated recommendations
+                    # Updated recommendations
                     updated_recommendations = fantasy_rec.get_recommendations(player_id, top_n=5)
                     precision_updated = fantasy_rec.precisionK(player_id, updated_recommendations)
                     unavailable_message = f"Unavailable players: {', '.join(map(str, unavailable_players))}"

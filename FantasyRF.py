@@ -104,12 +104,11 @@ class FantasyRecommenderRF:
         test_labels = self.test_data['archetype']
         predictions = self.rf_model.predict(test_features)
 
-        # Confusion matrix
+        
         cm = confusion_matrix(test_labels, predictions)
         print("Confusion Matrix:")
         print(cm)
 
-        # Classification report
         cr = classification_report(test_labels, predictions)
         print("Classification Report:")
         print(cr)
@@ -133,7 +132,7 @@ class FantasyRecommenderRF:
         # Get probabilities for player archetype
         player_probs = self.rf_model.predict_proba(player_features)
         
-        # Calculate similarities using probability distributions
+        
         all_probs = self.rf_model.predict_proba(self.scaled_features)
         similarities = np.dot(all_probs, player_probs.T).flatten()
         
