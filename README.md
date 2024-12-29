@@ -2,7 +2,8 @@
 ![Picture](image.png)
 ### Overview
 
-This repo attempts to provide a comprehensive educational project that demonstrates the integration of data engineering and machine learning concepts. The project showcases three key components: API development, ETL (Extract, Transform, Load) processes, and recommender systems. Specifically, we leverage a custom-built BasketballAPI that generates fictional basketball player data and statistics across multiple seasons by simulating the `nba_api` which is an API Client for www.nba.com. This data is then processed through a Python-based ETL pipeline that cleanly transforms and stores the information in a CSV format. 
+This repo is part of a comprehensive educational project that demonstrates the integration of data engineering and machine learning concepts. The project showcases three key components: API development, ETL (Extract, Transform, Load) processes,recommender systems, and a basic approach to integrate models into a web applicaiton. Specifically, we leverage a custom-built BasketballAPI that generates fictional basketball player data and statistics across multiple seasons by simulating the `nba_api` which is an API Client for www.nba.com. This data is then processed through a Python-based ETL pipeline that cleanly transforms and stores the information in a CSV format. Ultimately, we use different type of recommender systems to solve a fictional fantasy league problem.
+ 
 
 The project follows the CRISP-DM (Cross-Industry Standard Process for Data Mining) methodology, which provides a structured approach through six key phases:
 1. **Business Understanding**: Defining the need for a fantasy basketball recommender system
@@ -27,23 +28,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 import seaborn as sns
-from FantasySVD import svd_approach
-from FantasyRF import FantasyRecommenderRF
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import GroupShuffleSplit
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
-from BasicRec import FantasyReccomenderBasic
-from FantasyAdvanced import FantasyRecommenderAdvanced
 from sklearn.decomposition import TruncatedSVD
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import train_test_split
+from FantasySVD import svd_approach
+from FantasyRF import FantasyRecommenderRF
+from BasicRec import FantasyReccomenderBasic
+from FantasyAdvanced import FantasyRecommenderAdvanced
+from flask import Flask, request, jsonify
+
 pd.set_option('display.max_colwidth', 800)
 %matplotlib inline
 ```
 
 ### Deployment
-<ul> <b>BaskteballAPI.py</b>: A synthetic basketball data generation API that simulates player statistics and team dynamics across five seasons (2019-2024). The system creates realistic player profiles with different archetypes (elite/regular), manages team assignments, and generates performance metrics.</ul>
+<ul> <b>BaskteballAPI.py</b>: A synthetic basketball data generation API Class that simulates player statistics and team dynamics across five seasons (2019-2024). The system creates realistic player profiles with different archetypes (elite/regular), manages team assignments, and generates performance metrics.</ul>
 
 <ul> <b>basketball_etl.py</b>: An ETL (Extract, Transform, Load) function that processes basketball player and statistics data into a unified DataFrame. The function merges player information with their performance statistics and exports the combined data to a CSV file, while tracking processing time and record counts.</ul>
+
+<ul><b>get_data.py</b>: This file retrieves basketball player data and statistics via the BasketballAPI, processes the data using an ETL function, and displays a summary including player counts and archetype distribution. It outputs a sample of the combined data and basic statistics about the players and teams.</ul>
 
 <ul><b>DataAnalysis.ipynb</b>: It is a Jupyter Notebook where we perform analysis on the data generated using the CRISP-DM (Cross-Industry Standard Process for Data Mining) methodology. We start with an EDA (Exploratory Data Analysis) then run and evaluate different types of recommender systems.</ul>
 
@@ -55,11 +62,18 @@ pd.set_option('display.max_colwidth', 800)
 
 <ul><b>FantasyRF.py</b>An enanched fantasy basketball recommender system class using Random Forest classification to analyze player statistics and generate personalized recommendations matching similar player archetypes and performance patterns.</ul>
 
-Other files:
-- image.png: Readme file intro photo created with AI.
-- precision_hist.png: Readme file supporting picture.
+<ul><b>app.py</b> The backend of the application, built using the Flask framework. It loads the pickled model, handling user input, running predictions using the recommender, and serving the results to the frontend.</ul>  
 
-The model is turned into a pickle file and used in the web application. However, since the file exceeds GitHub's file size limit, it will not be shared to avoid commit issues.
+Other files:
+- image.png: Picture file created with AI and used as a background for the  webapp and in the Readme file.
+- precision_hist.png: Readme file supporting picture.
+- pie_chart_missing_values.png: Readme file supporting picture.
+- bar_chart_missing_values.png: Readme file supporting picture.
+- fantasy_rec_model.pkl: Pickle file to serialize and save the model. This allows us to efficiently load the pre-trained model during the application runtime without the need to retrain it every time.
+- index.html: This is the frontend of the application, created using HTML (and some basic CSS for styling and interactivity). It provides a user-friendly interface where stakeholders can input their preferences or requirements and view the recommended results generated by the model.
+- styles.css: This provides additional graphical enhancments.
+
+
 ### Resources
 
 - [Recommender Engine with SVD](https://machinelearningmastery.com/using-singular-value-decomposition-to-build-a-recommender-system/)
@@ -70,4 +84,4 @@ Below are 2 screenshots displaying the web application.
 
 
 ### Acknowledgment
-I would like to acknowledge Stackoverflow, You.com for its generative AI models, and ChatGPT as instrumental aids in the development of this project.
+I would like to acknowledge Stackoverflow, You.com for its generative AI models, and ChatGPT as instrumental aids in the development of this project especially for the front-end/back-end development of the web app.
